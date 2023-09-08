@@ -1,0 +1,9 @@
+streamlit==0.90.0
+langchain==1.0.0
+transformers==4.9.2
+hugchat==2.1.0
+googletrans==4.0.0-rc1
+gtts==2.2.3
+azure-cognitiveservices-speech==1.23.0
+SpeechRecognition==3.8.1
+pydub==0.25.1
