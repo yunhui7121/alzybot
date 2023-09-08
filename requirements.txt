@@ -7,3 +7,4 @@ gtts
 azure-cognitiveservices-speech
 SpeechRecognition
 pydub
+streamlit_chat
