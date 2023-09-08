@@ -12,6 +12,9 @@ from gtts import gTTS
 from hugchat import hugchat
 from langchain import HuggingFaceHub
 from decouple import config
+# Load the secrets from secrets.toml
+huggingface_secrets = st.secrets["huggingface"]
+speech_secrets = st.secrets["speech"]
 
 # Initialize HuggingFaceHub directly with the repo_id
 llm = HuggingFaceHub(
@@ -26,8 +29,10 @@ language_code_map = {
     "Malay": "ms",
 }
 
-# Access your Hugging Face API token
-huggingfacehub_api_token = config('HUGGINGFACEHUB_API_TOKEN')
+# Access the variables
+huggingface_api_token = huggingface_secrets["api_token"]
+speech_api_key = speech_secrets["api_key"]
+speech_endpoint = speech_secrets["endpoint"]
 
 # Create a ConversationChain
 conversation = ConversationChain(
@@ -60,8 +65,7 @@ record_button = st.button("Record Voice")
 # Speech-to-text function using Azure Speech SDK
 def recognize_speech(selected_language):
       # Using speech_recognizer within this function
-    api_key = config('SPEECH_API_KEY')
-    endpoint = config('SPEECH_ENDPOINT')
+    
 
 
     # Initialize the SpeechConfig with your credentials
@@ -169,4 +173,5 @@ if st.button("Clear Conversation"):
     save_conversation_history(st.session_state.conversation_history)
     if tts_filename and os.path.exists(tts_filename):
         os.remove(tts_filename)
+
 
