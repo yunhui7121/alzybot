@@ -8,5 +8,4 @@ azure-cognitiveservices-speech
 SpeechRecognition
 pydub
 streamlit_chat
-os
 python-decouple
