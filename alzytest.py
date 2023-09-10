@@ -28,10 +28,14 @@ language_code_map = {
     "Malay": "ms",
 }
 
-# Access the variables using environment variables
+# Access the variables using environment variables loaded from secrets.env
 huggingface_api_token = os.getenv("HUGGINGFACE_API_TOKEN")
 speech_api_key = os.getenv("SPEECH_API_KEY")
 speech_endpoint = os.getenv("SPEECH_ENDPOINT")
+
+# Load Microsoft Translator API endpoint and key from secrets.env
+translator_api_endpoint = os.getenv("MICROSOFT_TRANSLATOR_API_ENDPOINT")
+translator_api_key = os.getenv("MICROSOFT_TRANSLATOR_API_KEY")
 
 # Create a ConversationChain
 conversation = ConversationChain(
@@ -120,16 +124,19 @@ def generate_response(conversation_history, selected_language):
     # Replace avoided phrases with alternatives in the response
     for phrase, alternative in avoided_phrases_alternatives.items():
         if phrase in response: # type: ignore
-            response = response.replace(phrase, alternative) #type: ignore
+            response = response.replace(phrase, alternative) #type:ignore
 
-    # Translate the response back to the user's selected language
+    # Translate the response back to the user's selected language using Microsoft Translator
     translator = Translator()
-    
     selected_language_code = language_code_map[selected_language]
     
-    translated_response = translator.translate(response, dest=selected_language_code).text # type: ignore
+    # Translate using Microsoft Translator
+    translated_response = translator.translate(response, dest=selected_language_code, src='en') #type: ignore
+    
+    # Access the translated text
+    translated_response_text = translated_response.text
 
-    return translated_response
+    return translated_response_text
 
 # Save conversation history
 def save_conversation_history(conversation_history):
@@ -164,5 +171,4 @@ if st.button("Clear Conversation"):
     save_conversation_history(st.session_state.conversation_history)
     if tts_filename and os.path.exists(tts_filename):
         os.remove(tts_filename)
-
 
