@@ -9,4 +9,4 @@ SpeechRecognition
 pydub
 streamlit_chat
 python-decouple
-dotenv
+
