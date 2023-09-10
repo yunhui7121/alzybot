@@ -2,7 +2,7 @@ streamlit
 langchain
 transformers
 hugchat
-googletrans
+googletrans=3.0.0
 gtts
 azure-cognitiveservices-speech
 SpeechRecognition
