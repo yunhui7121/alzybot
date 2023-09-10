@@ -10,11 +10,10 @@ import speech_recognition as sr
 from googletrans import Translator
 from gtts import gTTS
 from hugchat import hugchat
-from langchain import HuggingFaceHub
-from decouple import config
-# Load the secrets from secrets.toml
-huggingface_secrets = st.secrets["huggingface"]
-speech_secrets = st.secrets["speech"]
+from dotenv import load_dotenv  # Added to load environment variables
+
+# Load environment variables from the secrets.env file (if present)
+load_dotenv(dotenv_path="secrets.env")
 
 # Initialize HuggingFaceHub directly with the repo_id
 llm = HuggingFaceHub(
@@ -29,10 +28,10 @@ language_code_map = {
     "Malay": "ms",
 }
 
-# Access the variables
-huggingface_api_token = huggingface_secrets["api_token"]
-speech_api_key = speech_secrets["api_key"]
-speech_endpoint = speech_secrets["endpoint"]
+# Access the variables using environment variables
+huggingface_api_token = os.getenv("HUGGINGFACE_API_TOKEN")
+speech_api_key = os.getenv("SPEECH_API_KEY")
+speech_endpoint = os.getenv("SPEECH_ENDPOINT")
 
 # Create a ConversationChain
 conversation = ConversationChain(
@@ -64,17 +63,9 @@ record_button = st.button("Record Voice")
 
 # Speech-to-text function using Azure Speech SDK
 def recognize_speech(selected_language):
-      # Using speech_recognizer within this function
-    
-
-
     # Initialize the SpeechConfig with your credentials
-    speech_config = speechsdk.SpeechConfig(subscription=api_key, endpoint=endpoint) # type: ignore
-
-    # Create a speech recognizer object
-    speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
+    speech_config = speechsdk.SpeechConfig(subscription=speech_api_key, endpoint=speech_endpoint)
     r = sr.Recognizer()
-
 
     with sr.Microphone() as source:
         st.write("Speak something...")
