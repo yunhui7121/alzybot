@@ -7,7 +7,6 @@ from streamlit_chat import message
 import azure.cognitiveservices.speech as speechsdk
 import json
 import speech_recognition as sr
-from googletrans import Translator
 from gtts import gTTS
 from hugchat import hugchat
 from dotenv import load_dotenv  # Added to load environment variables
@@ -20,13 +19,6 @@ llm = HuggingFaceHub(
     repo_id="google/flan-t5-xl",
     model_kwargs={"temperature": 1e-10}
 ) # type: ignore
-
-# Map language names to language codes
-language_code_map = {
-    "Mandarin": "zh-CN",
-    "English": "en",
-    "Malay": "ms",
-}
 
 # Access the variables using environment variables
 huggingface_api_token = os.getenv("HUGGINGFACE_API_TOKEN")
@@ -56,15 +48,12 @@ if 'conversation_history' not in st.session_state:
 # Layout of input/response containers
 input_container = st.container()
 response_container = st.container()
-selected_language = st.selectbox("Select Your Preferred Language", ["Mandarin", "English", "Malay"])
 
 # Voice recording button
 record_button = st.button("Record Voice")
 
 # Speech-to-text function using Azure Speech SDK
-def recognize_speech(selected_language):
-    # Initialize the SpeechConfig with your credentials
-    speech_config = speechsdk.SpeechConfig(subscription=speech_api_key, endpoint=speech_endpoint)
+def recognize_speech():
     r = sr.Recognizer()
 
     with sr.Microphone() as source:
@@ -73,12 +62,7 @@ def recognize_speech(selected_language):
         st.write("Recognizing...")
 
     try:
-        if selected_language == "Mandarin":
-            user_input = r.recognize_google(audio, language="zh-CN")
-        elif selected_language == "Malay":
-            user_input = r.recognize_google(audio, language="ms-MY")
-        else:
-            user_input = r.recognize_google(audio, language="en-US")
+        user_input = r.recognize_google(audio, language="en-US")
         return user_input
     except sr.UnknownValueError:
         return "Sorry, I couldn't understand what you said."
@@ -86,9 +70,9 @@ def recognize_speech(selected_language):
         return "Sorry, there was an issue with the speech recognition service."
 
 # User input
-def get_input(selected_language):
+def get_input():
     if record_button:
-        user_input = recognize_speech(selected_language)
+        user_input = recognize_speech()
     else:
         user_input = st.text_input("You: ", "", key="input")
     return user_input
@@ -98,10 +82,10 @@ tts_filename = None
 
 # Inside the response output section
 with input_container:
-    user_input = get_input(selected_language)
+    user_input = get_input()
 
 # Generate AI response based on conversation history
-def generate_response(conversation_history, selected_language):
+def generate_response(conversation_history):
     chatbot = hugchat.ChatBot(cookie_path="cookies.json")
     
     # Concatenate user inputs and bot responses to form context
@@ -122,14 +106,7 @@ def generate_response(conversation_history, selected_language):
         if phrase in response: # type: ignore
             response = response.replace(phrase, alternative) #type: ignore
 
-    # Translate the response back to the user's selected language
-    translator = Translator()
-    
-    selected_language_code = language_code_map[selected_language]
-    
-    translated_response = translator.translate(response, dest=selected_language_code).text # type: ignore
-
-    return translated_response
+    return response
 
 # Save conversation history
 def save_conversation_history(conversation_history):
@@ -141,7 +118,7 @@ if user_input:
     st.session_state.conversation_history.append({'role': 'user', 'text': user_input})
 
     # Generate and store bot response
-    response = generate_response(st.session_state.conversation_history, selected_language)
+    response = generate_response(st.session_state.conversation_history)
     st.session_state.conversation_history.append({'role': 'bot', 'text': response})
     save_conversation_history(st.session_state.conversation_history)
 
@@ -164,5 +141,5 @@ if st.button("Clear Conversation"):
     save_conversation_history(st.session_state.conversation_history)
     if tts_filename and os.path.exists(tts_filename):
         os.remove(tts_filename)
-     
+
 
