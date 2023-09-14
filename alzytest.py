@@ -92,7 +92,7 @@ def generate_response(conversation_history):
     context = "\n".join(entry['text'] for entry in conversation_history)
 
      # Remove the "endoftext" token from the response
-    response = response.replace("endoftext", "")
+    response = response.replace("<|endoftext|>", "")
 
     # Define a dictionary of avoided phrases and their alternatives
     avoided_phrases_alternatives = {
