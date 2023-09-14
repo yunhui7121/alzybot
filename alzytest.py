@@ -91,8 +91,7 @@ def generate_response(conversation_history):
     # Concatenate user inputs and bot responses to form context
     context = "\n".join(entry['text'] for entry in conversation_history)
 
-     # Remove the "endoftext" token from the response
-    response = response.replace("<|endoftext|>", "")
+    response = chatbot.chat(context)
 
     # Define a dictionary of avoided phrases and their alternatives
     avoided_phrases_alternatives = {
@@ -106,6 +105,9 @@ def generate_response(conversation_history):
     for phrase, alternative in avoided_phrases_alternatives.items():
         if phrase in response: # type: ignore
             response = response.replace(phrase, alternative) #type: ignore
+
+     # Remove the "endoftext" token from the response
+    response = response.replace("<|endoftext|>", "")
 
     return response
 
